@@ -13,6 +13,7 @@ using namespace std;
 
 /*double TMatrix::Det( const QVector <QVector <double>> matrix ) // вычисление det рекурсивным методом разложения по строке
 {
+dick
 
 }*/
 
