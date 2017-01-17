@@ -46,7 +46,7 @@ bool TMatrix::Reverse(int size)
     {
         copy[i] = new double [size];
         for (int j = 0; j < size; ++j)
-        copy[i][j] = this->matrix[i][j];
+            copy[i][j] = this->matrix[i][j];
     }
 
         // Проходим по строкам матрицы (назовём их исходными)
@@ -74,7 +74,6 @@ bool TMatrix::Reverse(int size)
                         // как в исходной матрице, так и в единичной
                      swap(copy[k], copy[i]);
                      swap(E[k], E[i]);
-
                         // Взводим ключ - сообщаем о произведённом обмене строк
                      changed = true;
                      break;
@@ -88,9 +87,11 @@ bool TMatrix::Reverse(int size)
                     // Чистим память
                  for (int i = 0; i < size; ++i)
                     delete [] copy[i];
-
                  delete [] copy;
 
+                 for (int i = 0; i < size; ++i)
+                     delete [] E[i];
+                 delete [] E;
                     // Сообщаем о неудаче обращения
                  return false;
              }
@@ -161,6 +162,11 @@ bool TMatrix::Reverse(int size)
          delete [] copy[i];
 
      delete [] copy;
+
+     for (int i = 0; i < size; ++i)
+         delete [] E[i];
+
+     delete [] E;
 
         // Сообщаем об успехе обращения
      printf("Reversed\n");
