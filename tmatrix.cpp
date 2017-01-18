@@ -11,11 +11,105 @@
 
 using namespace std;
 
-/*double TMatrix::Det( const QVector <QVector <double>> matrix ) // вычисление det рекурсивным методом разложения по строке
+double TMatrix::det(double **M, int size)
 {
-dick
+    //Функция, вычисляющая определитель матрицы
+        // Принимает:
+        // М - указатель на двумерный массив
+        //  size - размерность матрицы
+        // Возвращает:
+        // double - число
+        // Вычисление выполняется с помощью приведения к ступенчатому виду
 
-}*/
+    for (int k = 0; k < size; ++k)
+    {
+            // Если элемент на главной диагонали в исходной
+            // строке - нуль, то ищем строку, где элемент
+            // того же столбца не нулевой, и меняем строки
+            // местами
+         double s = 0;
+         if (M[k][k] == 0)
+         {
+             bool changed = false;
+             // Идём по строкам, расположенным ниже исходной
+             for (int i = k + 1; i < size; ++i)
+             {
+                    // Если нашли строку, где в том же столбце
+                    // имеется ненулевой элемент
+                 if (M[i][k] != 0)
+                 {
+                        // Меняем найденную и исходную строки местами
+                     swap(M[k], M[i]);
+                     changed = true;
+                     s++;
+                     break;
+                 }
+             }
+                // Если обмен строк произведён не был - матрица не может быть
+                // обращена
+             if (!changed)
+                 return 0;
+         }
+         // Идём по строкам, которые расположены ниже исходной
+         for (int i = k + 1; i < size; ++i)
+         {
+             // Запоминаем множитель
+            double multi = M[i][k] / M[k][k];
+             // Отнимаем от очередной строки исходную, умноженную
+             // на сохранённый ранее множитель
+            for (int j = 0; j < size; ++j)
+                M[i][j]   -= multi * M[k][j];
+         }
+     }
+
+     double ref = M[0][0];
+     for (int i = 1; i < size; ++i)
+        ref *= M[i][i];
+
+     return ref * pow(-1, s);
+}
+
+void * TMatrix::AlgebraicComplement (void *arg)
+{
+    // Функция для нахождения алгебраического дополнения элемента (для многопоточности)
+
+
+}
+
+bool TMatrix::MThReverse(int size)
+{
+    //Функция, производящая обращение матрицы в несколько потоков
+        // Принимает:
+        //  size - размерность матрицы
+        // Возвращает:
+        // true - успех; false - неудача.
+        // Обращение выполняется с помощью присоединенной матрицы и det
+
+    double **copy = new double *[size]();
+        // Заполняем копию исходной матрицы
+    for (int i = 0; i < size; ++i)
+    {
+        copy[i] = new double [size];
+        for (int j = 0; j < size; ++j)
+            copy[i][j] = this->matrix[i][j];
+    }
+
+    // Возможно тут будет ошибка, не уверен точно, изменится ли передаваемая в det матрица
+    double deter = det(**copy, size);
+
+    // Транспонирование исходной
+    double temp;
+    for (int i = 0; i < (size - 1); ++i)
+        for (j = i + 1; j < size; ++j)
+        {
+            temp = copy[j][i];
+            copy[j][i] = copy[i][j];
+            copy[i][j] = temp;
+        }
+
+
+
+}
 
 bool TMatrix::Reverse(int size)
 {
@@ -27,8 +121,8 @@ bool TMatrix::Reverse(int size)
 
         // Изначально результирующая матрица является единичной
         // Заполняем единичную матрицу
-    double **E = new double *[size]();
 
+    double **E = new double *[size]();
     for (int i = 0; i < size; ++i)
         {
             E[i] = new double [size];
@@ -40,7 +134,6 @@ bool TMatrix::Reverse(int size)
 
         // Копия исходной матрицы
     double **copy = new double *[size]();
-
         // Заполняем копию исходной матрицы
     for (int i = 0; i < size; ++i)
     {
