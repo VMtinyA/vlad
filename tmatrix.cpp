@@ -8,8 +8,11 @@
 
 #define LEN 128
 #define ERROR_OPEN_FILE -3
+#define MAX_THREADS 2
 
 using namespace std;
+
+//static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 double TMatrix::det(double **M, int size)
 {
@@ -21,13 +24,13 @@ double TMatrix::det(double **M, int size)
         // double - число
         // Вычисление выполняется с помощью приведения к ступенчатому виду
 
+    double s = 0;
     for (int k = 0; k < size; ++k)
     {
             // Если элемент на главной диагонали в исходной
             // строке - нуль, то ищем строку, где элемент
             // того же столбца не нулевой, и меняем строки
             // местами
-         double s = 0;
          if (M[k][k] == 0)
          {
              bool changed = false;
@@ -72,8 +75,36 @@ double TMatrix::det(double **M, int size)
 void * TMatrix::AlgebraicComplement (void *arg)
 {
     // Функция для нахождения алгебраического дополнения элемента (для многопоточности)
+    // принимает и возвращает указатель на void
+    // матрицу принимает из copy
+
+    /*pthread_mutex_lock (&mutex);
+    j++;
+    pthread_mutex_unlock (&mutex);*/
+
+    int Msize = size - 1, row_index = i, col_index = (const int *) arg; // "выгрузка" аргументов
+
+    // Создание и заполнение минора - ошибка алгоритма
+    double **Minor = new double *[Msize]();
+    for (int Mi = 0; Mi < Msize; Mi++)
+    {
+        Minor[Mi] = new double [Msize];
+        int temp_row = Mi;
+        if (temp_row == row_index) temp_row++;
+        for (int Mj = 0; Mj < Msize; Mj++)
+        {
+            int temp_col = Mj;
+            if (Mj == col_index)
+                Minor[Mi][Mj] = copy[temp_row][Mj + 1];
+            else
+                Minor[Mi][Mj] = copy[temp_row][Mj];
+        }
+    }
 
 
+
+
+    return arg;
 }
 
 bool TMatrix::MThReverse(int size)
@@ -95,7 +126,8 @@ bool TMatrix::MThReverse(int size)
     }
 
     // Возможно тут будет ошибка, не уверен точно, изменится ли передаваемая в det матрица
-    double deter = det(**copy, size);
+    double deter = det(copy, size);
+    if (!deter) return false;
 
     // Транспонирование исходной
     double temp;
@@ -107,8 +139,38 @@ bool TMatrix::MThReverse(int size)
             copy[i][j] = temp;
         }
 
+    // Вычисление матрицы алгебраических дополнений в 2 потока (изменяет copy)
+    pthread_t threads[MAX_THREADS];
+    for (int i = 0; i < size; i++)
+    {
+        int j = 0;
+        while (j < size)
+        {
+            int th_count = 0;
+            while ( (th_count < MAX_THREADS) && (j != size) )
+            {
+                pthread_create (&(threads[th_count]), NULL, AlgebraicComplement, (void *) j);
+                th_count++; j++;
+            }
+            for (th_count; th_count > 0; --th_count)
+                pthread_join (threads[th_count - 1], NULL);
+        }
+    }
 
+    // Итоговое вычисление обратной матрицы (делит каждый элемент copy на det исходной)
+    for (int i = 0; i < size; ++i)
+    {
+        for (int j = 0; j < size; ++j)
+        {
+            copy[i][j] /= deter;
+            this->matrix[i][j] = copy[i][j];
+        }
+        delete [] copy[i];
+    }
+    delete [] copy;
 
+    printf("Reversed\n");
+    return true;
 }
 
 bool TMatrix::Reverse(int size)
@@ -253,12 +315,10 @@ bool TMatrix::Reverse(int size)
         // Чистим память
      for (int i = 0; i < size; ++i)
          delete [] copy[i];
-
      delete [] copy;
 
      for (int i = 0; i < size; ++i)
          delete [] E[i];
-
      delete [] E;
 
         // Сообщаем об успехе обращения

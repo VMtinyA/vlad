@@ -14,6 +14,17 @@ int main(int argc, char *argv[])
     TMatrix *Matrix = new TMatrix();
 
     Matrix->InitMatrix(n);
+
+    /*double **copy = new double *[n]();
+        // Заполняем копию исходной матрицы
+    for (int i = 0; i < n; ++i)
+    {
+        copy[i] = new double [n];
+        for (int j = 0; j < n; ++j)
+            copy[i][j] = Matrix->matrix[i][j];
+    }
+    printf("Det = %.3f\n", Matrix->det(copy, n));*/
+
     while (!Matrix->Reverse(n))
         {
             printf("Error\n");

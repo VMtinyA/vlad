@@ -17,7 +17,7 @@ class TMatrix
 private:
     QVector <QVector <double>> matrix;
 
-    double Det(double **M, int size); // вычисляет определитель матрицы
+    double det(double **M, int size); // вычисляет определитель матрицы
     void * AlgebraicComplement (void *arg);
     void setMatrix(const int n); // перегруженная функция для ввода матрицы "вручную"
     void setMatrix(const char *fname, const int n); // перегруженная функция для ввода матрицы из файла
@@ -25,6 +25,9 @@ private:
     void getMatrix(const char *fname); //перегруженная функция для вывода матрицы в файл
 
 public:
+
+    /*QVector <QVector <double>> matrix;
+    double det(double **M, int size);*/
 
     bool MThReverse(int size);
     bool Reverse (int size); // осуществляет поиск обратной
