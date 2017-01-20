@@ -18,11 +18,20 @@ private:
     QVector <QVector <double>> matrix;
 
     double det(double **M, int size); // вычисляет определитель матрицы
-    void * AlgebraicComplement (void *arg);
+    static void * AlgebraicComplement (void* thread_data);
     void setMatrix(const int n); // перегруженная функция для ввода матрицы "вручную"
     void setMatrix(const char *fname, const int n); // перегруженная функция для ввода матрицы из файла
     void getMatrix(); // перегруженная функция вывода матрицы на экран
     void getMatrix(const char *fname); //перегруженная функция для вывода матрицы в файл
+
+    //специальная структура для данных потока
+    typedef struct{
+        int row_index; //номер обрабатываемой строки
+        int col_index; // номер обрабатываемого элемента
+        int size; //размер исходной матрицы
+        //указатели на матрицы
+        double** copy;
+    } pthrData;
 
 public:
 

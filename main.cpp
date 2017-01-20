@@ -30,6 +30,7 @@ int main(int argc, char *argv[])
             printf("Error\n");
             Matrix->InitMatrix(n);
         }
+    Matrix->MThReverse(n);
     Matrix->ShowMatrix();
 
     delete Matrix;
